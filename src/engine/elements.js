@@ -34,7 +34,9 @@ export const TYPES = {
   SPARK_GREEN: 32,
   STEAM: 33,
   LEAF_AUTUMN: 34,
-  WIND: 35
+  WIND: 35,
+  FIREWORK_STAGE1: 36,
+  FIREWORK_STAGE2: 37
 };
 
 export const ELEMENTS = {
@@ -117,5 +119,7 @@ export const ELEMENTS = {
     type: 'event',
     warningTitle: '가을바람이 불어와요!',
     warningText: '가을바람이 불면 초록색 나뭇잎들이 예쁜 색으로 물들고 바닥으로 떨어져요! 바람을 불어볼까요?'
-  }
+  },
+  [TYPES.FIREWORK_STAGE1]: { id: TYPES.FIREWORK_STAGE1, name: '폭죽대기1', color: [250, 100, 100], type: 'solid', hidden: true },
+  [TYPES.FIREWORK_STAGE2]: { id: TYPES.FIREWORK_STAGE2, name: '폭죽대기2', color: [250, 100, 100], type: 'solid', hidden: true }
 };

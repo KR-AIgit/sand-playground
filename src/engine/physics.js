@@ -342,9 +342,24 @@ export class PhysicsEngine {
 
         // Snow (drifting slowly downwards)
         else if (id === TYPES.SNOW) {
+          // 가을바람 연출: 눈이 왼쪽으로 흩날리며 전체의 약 1/2이 서서히 소멸됨
+          if (this.windTimer > 0) {
+             if (Math.random() < 0.4) {
+                const dx = -1;
+                const dy = Math.random() < 0.5 ? -1 : 0;
+                if (this.canMoveTo(x + dx, y + dy)) {
+                   this.swap(x, y, x + dx, y + dy);
+                }
+             }
+             if (Math.random() < 0.0015) {
+                this.nextGrid[idx] = TYPES.EMPTY;
+                continue;
+             }
+          }
+
           // Melting logic
           if (this.moonTimer === 0) {
-             const meltChance = this.sunTimer > 0 ? 0.0004 : 0.0002;
+             const meltChance = this.sunTimer > 0 ? 0.0008 : 0.0004;
              if (Math.random() < meltChance) {
                 this.nextGrid[idx] = TYPES.WATER;
                 continue;
@@ -412,7 +427,12 @@ export class PhysicsEngine {
         else if (el.type === 'liquid') {
           if (id === TYPES.WATER && this.moonTimer > 0) {
              if (this.canMoveTo(x, y + 1) || this.canMoveTo(x - 1, y + 1) || this.canMoveTo(x + 1, y + 1)) {
-                this.nextGrid[idx] = TYPES.SNOW;
+                // 기존 0.20 에서 90% 더 줄여서 0.02로 설정 (눈이 거의 쌓이지 않고 흩날리듯 내림)
+                if (Math.random() < 0.02) {
+                   this.nextGrid[idx] = TYPES.SNOW;
+                } else {
+                   this.nextGrid[idx] = TYPES.EMPTY;
+                }
                 continue;
              }
           }
@@ -580,7 +600,8 @@ export class PhysicsEngine {
                 }
               }
             }
-            if (Math.random() < 0.1) {
+            // 불이 번지거나 살아있는 수명을 1/3로 줄임 (빨리 꺼지게 함)
+            if (Math.random() < 0.3) {
               this.nextGrid[idx] = TYPES.SMOKE; // Fire dies to smoke
             }
           }
@@ -624,6 +645,22 @@ export class PhysicsEngine {
                }
              }
           }
+        }
+
+        // Fireworks Automatic Timer
+        if (id === TYPES.FIREWORK) {
+           // ~1 sec per stage (1/60 chance per frame)
+           if (Math.random() < 0.016) {
+              this.nextGrid[idx] = TYPES.FIREWORK_STAGE1;
+           }
+        } else if (id === TYPES.FIREWORK_STAGE1) {
+           if (Math.random() < 0.016) {
+              this.nextGrid[idx] = TYPES.FIREWORK_STAGE2;
+           }
+        } else if (id === TYPES.FIREWORK_STAGE2) {
+           if (Math.random() < 0.016) {
+              this.nextGrid[idx] = TYPES.FIREWORK_ACTIVE;
+           }
         }
 
         // Spark

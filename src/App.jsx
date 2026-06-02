@@ -4,8 +4,8 @@ import { TYPES, ELEMENTS } from './engine/elements';
 import { PhysicsEngine } from './engine/physics';
 import './index.css';
 
-const CANVAS_WIDTH = 150;
-const CANVAS_HEIGHT = 150;
+const CANVAS_WIDTH = 300;
+const CANVAS_HEIGHT = 300;
 
 function App() {
   const canvasRef = useRef(null);
@@ -100,7 +100,7 @@ function App() {
       return;
     }
     
-    const isSingle = [TYPES.FIREWORK, ...[TYPES.PLANT, TYPES.TREE, TYPES.ANT]].includes(currentElement) || forceSingle;
+    const isSingle = [TYPES.FIREWORK, TYPES.FIRE, ...[TYPES.PLANT, TYPES.TREE, TYPES.ANT]].includes(currentElement) || forceSingle;
     
     // 지우개를 제외한 브러시 크기 절반으로 축소
     let effectiveBrushSize = currentElement === TYPES.EMPTY ? brushSize : Math.max(1, Math.floor(brushSize / 2));
