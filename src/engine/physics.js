@@ -162,7 +162,8 @@ export class PhysicsEngine {
       }
     }
     
-    const timeSpeed = this.isEclipse ? 0.5 : 1;
+    // 일식 중에는 시간이 현재(0.5)보다 2배 더 느리게(0.25) 흘러 일식이 오래 지속되도록 변경
+    const timeSpeed = this.isEclipse ? 0.25 : 1;
     this.isRaining = false;
 
     // Global Climate Effects
@@ -402,12 +403,6 @@ export class PhysicsEngine {
                     this.swap(x, y, pRight.x, pRight.y);
                  }
               }
-            }
-          }
-          if (Math.random() < 0.1) {
-            const dx = Math.random() < 0.5 ? -1 : 1;
-            if (this.canMoveTo(x + dx, y)) {
-              this.swap(x, y, x + dx, y);
             }
           }
         }
@@ -666,8 +661,8 @@ export class PhysicsEngine {
 
         // Spark
         else if (el.type === 'spark') {
-           // Disappear after a short time (e.g. ~1-2 seconds)
-           if (Math.random() < 0.015) {
+           // 터진 후 아주 짧은 시간(거의 즉시)에 흩어지며 사라짐
+           if (Math.random() < 0.08) {
               this.nextGrid[idx] = TYPES.EMPTY;
            }
         }

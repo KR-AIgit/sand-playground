@@ -4,8 +4,8 @@ import { TYPES, ELEMENTS } from './engine/elements';
 import { PhysicsEngine } from './engine/physics';
 import './index.css';
 
-const CANVAS_WIDTH = 300;
-const CANVAS_HEIGHT = 300;
+const CANVAS_WIDTH = 250;
+const CANVAS_HEIGHT = 250;
 
 function App() {
   const canvasRef = useRef(null);
