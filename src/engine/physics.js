@@ -464,29 +464,33 @@ export class PhysicsEngine {
           }
 
           if (touchedWater) {
-            // 물을 조금씩 흡수(소모)
-            if (Math.random() < 0.2) {
+            // 물 흡수 속도 1/2로 감소 (기존 0.2 -> 0.1)
+            if (Math.random() < 0.1) {
               this.nextGrid[this.getIndex(waterX, waterY)] = TYPES.EMPTY;
             }
             
-            // 씨앗은 식물로 변함
+            // 씨앗이 새싹으로 변하는 속도 대폭 감소 (천천히 올라옴)
             if (id === TYPES.SEED) {
-              this.nextGrid[idx] = TYPES.PLANT;
+              if (Math.random() < 0.05) {
+                this.nextGrid[idx] = TYPES.PLANT;
+              }
             }
             
-            // 식물은 빛(위쪽)을 향해 덩굴처럼 자라남
-            if (Math.random() < 0.2) {
+            // 새싹 성장 속도 1/2로 감소 (기존 0.2 -> 0.1)
+            if (id === TYPES.PLANT && Math.random() < 0.1) {
               const growDirs = [
-                {dx: 0, dy: -1}, // up
-                {dx: -1, dy: -1}, // up-left
-                {dx: 1, dy: -1}, // up-right
-                {dx: -1, dy: 0}, // left
-                {dx: 1, dy: 0}   // right
+                {dx: 0, dy: -1}, {dx: -1, dy: -1}, {dx: 1, dy: -1}, {dx: -1, dy: 0}, {dx: 1, dy: 0}
               ];
               const dir = growDirs[Math.floor(Math.random() * growDirs.length)];
               const target = this.get(x + dir.dx, y + dir.dy);
               if (target === TYPES.EMPTY) {
-                 this.nextGrid[this.getIndex(x + dir.dx, y + dir.dy)] = TYPES.PLANT;
+                 // 자라날 때 10% 확률로 알록달록한 꽃 피우기
+                 if (Math.random() < 0.1) {
+                   const flowers = [TYPES.FLOWER_1, TYPES.FLOWER_2, TYPES.FLOWER_3];
+                   this.nextGrid[this.getIndex(x + dir.dx, y + dir.dy)] = flowers[Math.floor(Math.random() * flowers.length)];
+                 } else {
+                   this.nextGrid[this.getIndex(x + dir.dx, y + dir.dy)] = TYPES.PLANT;
+                 }
               }
             }
           }
@@ -507,22 +511,36 @@ export class PhysicsEngine {
           }
 
           if (touchedWater) {
-            if (Math.random() < 0.3) {
+            // 물 흡수 속도 감소 (기존 0.3 -> 0.15)
+            if (Math.random() < 0.15) {
               this.nextGrid[this.getIndex(waterX, waterY)] = TYPES.EMPTY;
             }
-            if (Math.random() < 0.4) {
-              const growDirs = [
-                {dx: 0, dy: -1}, {dx: -1, dy: -1}, {dx: 1, dy: -1}, {dx: -1, dy: 0}, {dx: 1, dy: 0},
-                {dx: 0, dy: -2}, {dx: -1, dy: -2}, {dx: 1, dy: -2}
-              ];
-              for(let i=0; i<2; i++) {
-                const dir = growDirs[Math.floor(Math.random() * growDirs.length)];
-                const target = this.get(x + dir.dx, y + dir.dy);
-                if (target === TYPES.EMPTY) {
-                  this.nextGrid[this.getIndex(x + dir.dx, y + dir.dy)] = Math.random() < 0.2 ? TYPES.TREE : TYPES.PLANT;
+            // 성장 확률 감소 (기존 0.4 -> 0.2)
+            if (Math.random() < 0.2) {
+              // 위로 자라며 기둥을 남김 (20% 확률)
+              if (Math.random() < 0.2 && this.get(x, y - 1) === TYPES.EMPTY) {
+                this.nextGrid[idx] = TYPES.WOOD;
+                this.nextGrid[this.getIndex(x, y - 1)] = TYPES.TREE;
+              } else {
+                // 옆으로 잎사귀 뻗기
+                const growDirs = [
+                  {dx: -1, dy: -1}, {dx: 1, dy: -1}, {dx: -1, dy: 0}, {dx: 1, dy: 0},
+                  {dx: -1, dy: -2}, {dx: 1, dy: -2}
+                ];
+                for(let i=0; i<2; i++) {
+                  const dir = growDirs[Math.floor(Math.random() * growDirs.length)];
+                  const target = this.get(x + dir.dx, y + dir.dy);
+                  if (target === TYPES.EMPTY) {
+                    this.nextGrid[this.getIndex(x + dir.dx, y + dir.dy)] = TYPES.TREE;
+                  }
                 }
               }
             }
+          } else {
+             // 물에 닿지 않은 잎사귀들은 시간이 지나면 서서히 벚꽃으로 변함
+             if (Math.random() < 0.002) {
+                this.nextGrid[idx] = TYPES.FLOWER_PINK;
+             }
           }
         }
 

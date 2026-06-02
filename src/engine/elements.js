@@ -21,7 +21,11 @@ export const TYPES = {
   MOON: 19,
   CLOUD: 20,
   LIGHTNING: 21,
-  ELECTRIC_WATER: 22
+  ELECTRIC_WATER: 22,
+  FLOWER_PINK: 23,
+  FLOWER_1: 24,
+  FLOWER_2: 25,
+  FLOWER_3: 26
 };
 
 export const ELEMENTS = {
@@ -84,5 +88,9 @@ export const ELEMENTS = {
   },
   [TYPES.CLOUD]: { id: TYPES.CLOUD, name: '구름', color: [230, 230, 235], type: 'gas' },
   [TYPES.LIGHTNING]: { id: TYPES.LIGHTNING, name: '번개', color: [255, 255, 100], type: 'energy', life: 3, hidden: true },
-  [TYPES.ELECTRIC_WATER]: { id: TYPES.ELECTRIC_WATER, name: '전기물', color: [255, 255, 50], type: 'liquid', life: 15, hidden: true }
+  [TYPES.ELECTRIC_WATER]: { id: TYPES.ELECTRIC_WATER, name: '전기물', color: [255, 255, 50], type: 'liquid', life: 15, hidden: true },
+  [TYPES.FLOWER_PINK]: { id: TYPES.FLOWER_PINK, name: '벚꽃', color: [255, 180, 200], type: 'falling_solid', flammable: 0.1, hidden: true },
+  [TYPES.FLOWER_1]: { id: TYPES.FLOWER_1, name: '빨간꽃', color: [255, 100, 100], type: 'falling_solid', flammable: 0.1, hidden: true },
+  [TYPES.FLOWER_2]: { id: TYPES.FLOWER_2, name: '노란꽃', color: [255, 220, 50], type: 'falling_solid', flammable: 0.1, hidden: true },
+  [TYPES.FLOWER_3]: { id: TYPES.FLOWER_3, name: '보라꽃', color: [150, 100, 255], type: 'falling_solid', flammable: 0.1, hidden: true }
 };

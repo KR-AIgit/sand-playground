@@ -75,6 +75,15 @@ function App() {
       return;
     }
     
+    if (currentElement === TYPES.SEED) {
+      for(let i=0; i<3; i++) {
+        const randX = x + Math.floor((Math.random() - 0.5) * (brushSize * 2));
+        const randY = y + Math.floor((Math.random() - 0.5) * (brushSize * 2));
+        engine.set(randX, randY, TYPES.SEED);
+      }
+      return;
+    }
+
     if (forceSingle) {
       engine.set(x, y, currentElement);
       return;
