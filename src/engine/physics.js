@@ -297,6 +297,15 @@ export class PhysicsEngine {
 
         // Snow (drifting slowly downwards)
         else if (id === TYPES.SNOW) {
+          // Melting logic
+          if (this.moonTimer === 0) {
+             const meltChance = this.sunTimer > 0 ? 0.0004 : 0.0002;
+             if (Math.random() < meltChance) {
+                this.nextGrid[idx] = TYPES.WATER;
+                continue;
+             }
+          }
+
           if (Math.random() < 0.3) {
             if (this.canSwapLiquid(x, y + 1)) {
               this.swap(x, y, x, y + 1);
@@ -515,6 +524,14 @@ export class PhysicsEngine {
                }
              }
           }
+        }
+
+        // Spark
+        else if (el.type === 'spark') {
+           // Disappear after a short time (e.g. ~1-2 seconds)
+           if (Math.random() < 0.015) {
+              this.nextGrid[idx] = TYPES.EMPTY;
+           }
         }
 
         // Bug (Ant)
