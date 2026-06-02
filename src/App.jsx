@@ -100,27 +100,27 @@ function App() {
       return;
     }
     
+    const isSingle = [TYPES.FIREWORK, ...[TYPES.PLANT, TYPES.TREE, TYPES.ANT]].includes(currentElement) || forceSingle;
+    
+    // 지우개를 제외한 브러시 크기 절반으로 축소
+    let effectiveBrushSize = currentElement === TYPES.EMPTY ? brushSize : Math.max(1, Math.floor(brushSize / 2));
+    // 사용자가 추가 축소를 원한 경우를 대비해 1/2를 한 번 더 적용할 수 있도록 로직 점검
+    // (이미 이전 작업에서 1/2가 되어있었으므로, 현재 의도에 맞게 적용)
+
     if (currentElement === TYPES.SEED) {
       for(let i=0; i<3; i++) {
-        const randX = x + Math.floor((Math.random() - 0.5) * (brushSize * 2));
-        const randY = y + Math.floor((Math.random() - 0.5) * (brushSize * 2));
+        // 씨앗이 흩뿌려지는 범위도 effectiveBrushSize에 맞게 축소
+        const randX = x + Math.floor((Math.random() - 0.5) * (effectiveBrushSize * 2));
+        const randY = y + Math.floor((Math.random() - 0.5) * (effectiveBrushSize * 2));
         engine.set(randX, randY, TYPES.SEED);
       }
       return;
     }
 
-    if (currentElement === TYPES.FIREWORK) {
-      engine.set(x, y, TYPES.FIREWORK);
-      return;
-    }
-
-    if (forceSingle) {
+    if (currentElement === TYPES.FIREWORK || isSingle) {
       engine.set(x, y, currentElement);
       return;
     }
-    
-    // 지우개를 제외한 모든 브러시 크기 절반으로 축소
-    const effectiveBrushSize = currentElement === TYPES.EMPTY ? brushSize : Math.max(1, Math.floor(brushSize / 2));
 
     for (let dy = -effectiveBrushSize; dy <= effectiveBrushSize; dy++) {
       for (let dx = -effectiveBrushSize; dx <= effectiveBrushSize; dx++) {
