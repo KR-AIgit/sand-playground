@@ -115,9 +115,9 @@ body {
 
 .eclipse-toast {
   position: absolute;
-  top: 80px;
+  top: 40%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   background: rgba(0, 0, 0, 0.85);
   color: white;
   padding: 15px 25px;
@@ -152,8 +152,8 @@ body {
 }
 
 @keyframes slideDown {
-  from { top: -50px; opacity: 0; }
-  to { top: 80px; opacity: 1; }
+  from { top: 30%; opacity: 0; }
+  to { top: 40%; opacity: 1; }
 }
 
 .sandbox-canvas {

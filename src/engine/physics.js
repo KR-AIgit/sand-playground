@@ -111,9 +111,20 @@ export class PhysicsEngine {
     // Copy current grid to nextGrid as baseline
     this.nextGrid.set(this.grid);
 
+    this.isEclipse = false;
+    if (this.sunTimer > 0 && this.moonTimer > 0) {
+      const sunX = Math.floor(((1200 - this.sunTimer) / 1200) * this.width);
+      const moonX = Math.floor((this.moonTimer / 1200) * this.width);
+      if (Math.abs(sunX - moonX) < 15) {
+        this.isEclipse = true;
+      }
+    }
+    
+    const timeSpeed = this.isEclipse ? 0.5 : 1;
+
     // Global Climate Effects
     if (this.sunTimer > 0) {
-      this.sunTimer--;
+      this.sunTimer -= timeSpeed;
       for (let i = 0; i < 6; i++) {
         const rx = Math.floor(Math.random() * this.width);
         const ry = Math.floor(Math.random() * this.height);
@@ -126,17 +137,21 @@ export class PhysicsEngine {
       }
     }
     if (this.moonTimer > 0) {
-      this.moonTimer--;
-      for (let i = 0; i < 6; i++) {
-        const rx = Math.floor(Math.random() * this.width);
-        const ry = Math.floor(Math.random() * this.height);
-        const rId = this.get(rx, ry);
-        if (rId === TYPES.WATER) {
-           this.nextGrid[this.getIndex(rx, ry)] = TYPES.SNOW;
-        } else if (rId === TYPES.SAND) {
-           if (ry > 0 && this.get(rx, ry - 1) === TYPES.EMPTY) {
-              this.nextGrid[this.getIndex(rx, ry - 1)] = TYPES.ICE;
-           }
+      this.moonTimer -= timeSpeed;
+      // To keep the conversion rate consistent with half speed, we might only run the loop half the time
+      // But 6 checks per frame is already small, we can keep it or use Math.random
+      if (Math.random() < timeSpeed) {
+        for (let i = 0; i < 6; i++) {
+          const rx = Math.floor(Math.random() * this.width);
+          const ry = Math.floor(Math.random() * this.height);
+          const rId = this.get(rx, ry);
+          if (rId === TYPES.WATER) {
+             this.nextGrid[this.getIndex(rx, ry)] = TYPES.SNOW;
+          } else if (rId === TYPES.SAND) {
+             if (ry > 0 && this.get(rx, ry - 1) === TYPES.EMPTY) {
+                this.nextGrid[this.getIndex(rx, ry - 1)] = TYPES.ICE;
+             }
+          }
         }
       }
     }

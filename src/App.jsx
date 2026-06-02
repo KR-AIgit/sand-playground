@@ -58,14 +58,7 @@ function App() {
           canvasContainerRef.current?.classList.remove('lightning-dark');
         }
 
-        let isEclipse = false;
-        if (engine.sunTimer > 0 && engine.moonTimer > 0) {
-           const sunX = Math.floor(((1200 - engine.sunTimer) / 1200) * CANVAS_WIDTH);
-           const moonX = Math.floor((engine.moonTimer / 1200) * CANVAS_WIDTH);
-           if (Math.abs(sunX - moonX) < 15) {
-              isEclipse = true;
-           }
-        }
+        let isEclipse = engine.isEclipse;
         
         if (isEclipse) {
           canvasContainerRef.current?.classList.add('eclipse-dark');
