@@ -552,14 +552,20 @@ export class PhysicsEngine {
           }
         }
 
-        // Gas (Fire, Smoke, Gas)
+        // Gas (Fire, Smoke, Gas, Cloud, Steam)
         else if (el.type === 'gas') {
           // Gas moves randomly up
+          let targetIdx = idx;
+          let newX = x;
+          let newY = y;
           let moved = false;
+          
           if (Math.random() < 0.6) {
              const upId = this.get(x, y - 1);
              if (this.canMoveTo(x, y - 1) || (this.canSwapLiquid(x, y - 1) && upId !== TYPES.LAVA && ELEMENTS[upId] && ELEMENTS[upId].type === 'liquid')) {
                 this.swap(x, y, x, y - 1);
+                targetIdx = this.getIndex(x, y - 1);
+                newY = y - 1;
                 moved = true;
              }
           }
@@ -567,57 +573,59 @@ export class PhysicsEngine {
              const dx = (Math.random() < 0.5 ? -1 : 1);
              if (this.canMoveTo(x + dx, y)) {
                this.swap(x, y, x + dx, y);
+               targetIdx = this.getIndex(x + dx, y);
+               newX = x + dx;
              } else if (this.canMoveTo(x - dx, y)) {
                this.swap(x, y, x - dx, y);
+               targetIdx = this.getIndex(x - dx, y);
+               newX = x - dx;
              }
           }
 
           if (id === TYPES.FIRE) {
              // Burn things
-             let burned = false;
              for (let dy = -1; dy <= 1; dy++) {
               for (let dx = -1; dx <= 1; dx++) {
-                const neighbor = this.get(x + dx, y + dy);
+                const neighbor = this.get(newX + dx, newY + dy);
                 const nEl = ELEMENTS[neighbor];
                 if (nEl && nEl.flammable && Math.random() < nEl.flammable) {
                   if (neighbor === TYPES.GAS) {
-                     this.explode(x + dx, y + dy, 3, TYPES.FIRE); // Gas explodes in a chain reaction!
+                     this.explode(newX + dx, newY + dy, 3, TYPES.FIRE); // Gas explodes in a chain reaction!
                   } else {
-                     this.nextGrid[this.getIndex(x + dx, y + dy)] = TYPES.FIRE;
+                     this.nextGrid[this.getIndex(newX + dx, newY + dy)] = TYPES.FIRE;
                   }
-                  burned = true;
                 }
                 if (neighbor === TYPES.ICE && Math.random() < 0.2) {
-                  this.nextGrid[this.getIndex(x + dx, y + dy)] = TYPES.WATER;
+                  this.nextGrid[this.getIndex(newX + dx, newY + dy)] = TYPES.WATER;
                 }
                 if (neighbor === TYPES.FIREWORK) {
                    // Ignite firework!
-                   this.nextGrid[this.getIndex(x + dx, y + dy)] = TYPES.FIREWORK_ACTIVE;
+                   this.nextGrid[this.getIndex(newX + dx, newY + dy)] = TYPES.FIREWORK_ACTIVE;
                 }
               }
             }
             // 불이 번지거나 살아있는 수명을 1/3로 줄임 (빨리 꺼지게 함)
             if (Math.random() < 0.3) {
-              this.nextGrid[idx] = TYPES.SMOKE; // Fire dies to smoke
+              this.nextGrid[targetIdx] = TYPES.SMOKE; // Fire dies to smoke
             }
           }
           
           if (id === TYPES.SMOKE) {
              if (Math.random() < 0.003) {
-                this.nextGrid[idx] = TYPES.EMPTY; // dissipate much slower
+                this.nextGrid[targetIdx] = TYPES.EMPTY; // dissipate much slower
              }
           }
           if (id === TYPES.STEAM) {
-             if (y < 15) {
+             if (newY < 15) {
                 if (Math.random() < 0.05) {
-                   this.nextGrid[idx] = TYPES.CLOUD;
+                   this.nextGrid[targetIdx] = TYPES.CLOUD;
                    if (this.toastMessage === null && !this.waterCycleToastShown) {
                       this.toastMessage = "햇빛을 받은 물이 뜨거워져서 수증기로 변해 하늘로 올라가 구름이 되었어요!";
                       this.waterCycleToastShown = true;
                    }
                 }
              } else if (Math.random() < 0.01) {
-                this.nextGrid[idx] = TYPES.EMPTY;
+                this.nextGrid[targetIdx] = TYPES.EMPTY;
              }
           }
           if (id === TYPES.CLOUD) {
@@ -625,8 +633,8 @@ export class PhysicsEngine {
              if (Math.random() < 0.01) {
                let cloudCount = 0;
                const checkRadius = 5;
-               for (let cy = y - checkRadius; cy <= y + checkRadius; cy++) {
-                 for (let cx = x - checkRadius; cx <= x + checkRadius; cx++) {
+               for (let cy = newY - checkRadius; cy <= newY + checkRadius; cy++) {
+                 for (let cx = newX - checkRadius; cx <= newX + checkRadius; cx++) {
                    if (cx >= 0 && cx < this.width && cy >= 0 && cy < this.height) {
                      if (this.grid[this.getIndex(cx, cy)] === TYPES.CLOUD) cloudCount++;
                    }
@@ -634,9 +642,9 @@ export class PhysicsEngine {
                }
                // 해(반지름 7.5) 크기 이상으로 밀도가 높아지면 (약 80픽셀 이상)
                if (cloudCount > 80) {
-                 this.nextGrid[idx] = TYPES.WATER; // 구름이 물(비)로 변환
-                 if (this.canMoveTo(x, y + 1)) {
-                    this.nextGrid[this.getIndex(x, y + 1)] = TYPES.WATER; // 물방울을 추가 생성하여 비를 무겁게 만듦
+                 this.nextGrid[targetIdx] = TYPES.WATER; // 구름이 물(비)로 변환
+                 if (this.canMoveTo(newX, newY + 1)) {
+                    this.nextGrid[this.getIndex(newX, newY + 1)] = TYPES.WATER; // 물방울을 추가 생성하여 비를 무겁게 만듦
                  }
                }
              }
