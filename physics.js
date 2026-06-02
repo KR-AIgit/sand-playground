@@ -584,7 +584,8 @@ export class PhysicsEngine {
                 }
               }
             }
-            if (Math.random() < 0.1) {
+            // 불이 번지거나 살아있는 수명을 1/3로 줄임 (빨리 꺼지게 함)
+            if (Math.random() < 0.3) {
               this.nextGrid[idx] = TYPES.SMOKE; // Fire dies to smoke
             }
           }
