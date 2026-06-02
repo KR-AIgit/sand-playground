@@ -641,26 +641,67 @@ export class PhysicsEngine {
             if (Math.random() < 0.15) {
               this.nextGrid[this.getIndex(waterX, waterY)] = TYPES.EMPTY;
             }
-            // 성장 확률 감소 (기존 0.4 -> 0.2)
+            
             if (Math.random() < 0.2) {
-              // 위로 자라며 기둥을 남김 (20% 확률)
-              if (Math.random() < 0.2 && this.get(x, y - 1) === TYPES.EMPTY) {
-                this.nextGrid[idx] = TYPES.WOOD;
-                this.nextGrid[this.getIndex(x, y - 1)] = TYPES.TREE;
-              } else {
-                // 옆으로 잎사귀 뻗기
-                const growDirs = [
-                  {dx: -1, dy: -1}, {dx: 1, dy: -1}, {dx: -1, dy: 0}, {dx: 1, dy: 0},
-                  {dx: -1, dy: -2}, {dx: 1, dy: -2}
-                ];
-                for(let i=0; i<2; i++) {
-                  const dir = growDirs[Math.floor(Math.random() * growDirs.length)];
-                  const target = this.get(x + dir.dx, y + dir.dy);
-                  if (target === TYPES.EMPTY) {
-                    this.nextGrid[this.getIndex(x + dir.dx, y + dir.dy)] = TYPES.TREE;
+               const bBelow = this.get(x, y + 1);
+               // 기둥(WOOD) 바로 위거나 바닥일 때 메인 기둥(Trunk)으로 성장 가능
+               const isTrunk = (bBelow === TYPES.WOOD || bBelow === TYPES.SAND || bBelow === TYPES.STONE);
+               
+               // 나무가 너무 두꺼워지지 않도록, 위가 비어있을 때만 성장
+               if (isTrunk && this.get(x, y - 1) === TYPES.EMPTY) {
+                  // 75% 확률로 위로 기둥 성장
+                  if (Math.random() < 0.75) {
+                     this.nextGrid[idx] = TYPES.WOOD;
+                     this.nextGrid[this.getIndex(x, y - 1)] = TYPES.TREE;
+                     
+                     // 기둥 양옆에 잎(TREE)을 남겨 풍성하게 만듦
+                     if (Math.random() < 0.7 && this.get(x - 1, y) === TYPES.EMPTY) {
+                        this.nextGrid[this.getIndex(x - 1, y)] = TYPES.TREE;
+                     }
+                     if (Math.random() < 0.7 && this.get(x + 1, y) === TYPES.EMPTY) {
+                        this.nextGrid[this.getIndex(x + 1, y)] = TYPES.TREE;
+                     }
+                  } else {
+                     // 25% 확률로 대각선으로 살짝 뻗음 (자연스러운 굴곡)
+                     const dirX = Math.random() < 0.5 ? -1 : 1;
+                     if (this.get(x + dirX, y - 1) === TYPES.EMPTY) {
+                        this.nextGrid[idx] = TYPES.WOOD;
+                        this.nextGrid[this.getIndex(x + dirX, y - 1)] = TYPES.TREE;
+                     }
                   }
-                }
-              }
+               } else {
+                  // 기둥이 아니라면 잎(Canopy)으로 풍성하게 퍼짐
+                  let emptyCount = 0;
+                  for(let dy=-1; dy<=1; dy++){
+                     for(let dx=-1; dx<=1; dx++){
+                        if(this.get(x+dx, y+dy) === TYPES.EMPTY) emptyCount++;
+                     }
+                  }
+                  
+                  // 빈 공간이 4개 이상일 때만 확장 (둥글고 예쁜 형태 유지, 무한증식 방지)
+                  if (emptyCount >= 4 && Math.random() < 0.4) {
+                     const growDirs = [
+                        {dx: -1, dy: -1}, {dx: 1, dy: -1}, 
+                        {dx: -1, dy: 0}, {dx: 1, dy: 0},
+                        {dx: 0, dy: -1}, {dx: 0, dy: 1}
+                     ];
+                     const dir = growDirs[Math.floor(Math.random() * growDirs.length)];
+                     const tx = x + dir.dx;
+                     const ty = y + dir.dy;
+                     
+                     if (tx >= 0 && tx < this.width && ty >= 0 && ty < this.height) {
+                        if (this.get(tx, ty) === TYPES.EMPTY) {
+                           // 10% 꽃, 90% 잎
+                           if (Math.random() < 0.1) {
+                              const flowers = [TYPES.FLOWER_1, TYPES.FLOWER_2, TYPES.FLOWER_3];
+                              this.nextGrid[this.getIndex(tx, ty)] = flowers[Math.floor(Math.random() * flowers.length)];
+                           } else {
+                              this.nextGrid[this.getIndex(tx, ty)] = TYPES.TREE;
+                           }
+                        }
+                     }
+                  }
+               }
             }
           } else {
              // 물에 닿지 않은 잎사귀들은 시간이 지나면 서서히 벚꽃으로 변함
