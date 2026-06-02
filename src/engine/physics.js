@@ -343,16 +343,19 @@ export class PhysicsEngine {
 
         // Snow (drifting slowly downwards)
         else if (id === TYPES.SNOW) {
-          // 가을바람 연출: 눈이 왼쪽으로 흩날리며 전체의 약 1/2이 서서히 소멸됨
+          // 가을바람 연출: 눈이 왼쪽 화면 밖으로 흩날리며 전체의 약 1/2이 서서히 소멸됨
           if (this.windTimer > 0) {
-             if (Math.random() < 0.4) {
+             if (Math.random() < 0.8) { // 왼쪽으로 빠르게 이동
                 const dx = -1;
                 const dy = Math.random() < 0.5 ? -1 : 0;
-                if (this.canMoveTo(x + dx, y + dy)) {
+                if (x === 0) {
+                   this.nextGrid[idx] = TYPES.EMPTY; // 화면 왼쪽 끝에 닿으면 즉시 소멸
+                   continue;
+                } else if (this.canMoveTo(x + dx, y + dy)) {
                    this.swap(x, y, x + dx, y + dy);
                 }
              }
-             if (Math.random() < 0.0015) {
+             if (Math.random() < 0.00115) { // 10초 동안 정확히 전체의 1/2 소멸 확률
                 this.nextGrid[idx] = TYPES.EMPTY;
                 continue;
              }
@@ -604,14 +607,15 @@ export class PhysicsEngine {
                 }
               }
             }
-            // 불이 번지거나 살아있는 수명을 1/3로 줄임 (빨리 꺼지게 함)
-            if (Math.random() < 0.3) {
+            // 정확한 연소 과정 (평균 3초 / 180프레임 후 연기로 변함)
+            if (Math.random() < 0.0055) {
               this.nextGrid[targetIdx] = TYPES.SMOKE; // Fire dies to smoke
             }
           }
           
           if (id === TYPES.SMOKE) {
-             if (Math.random() < 0.003) {
+             // 정확한 소멸 과정 (평균 6초 / 360프레임 후 소멸)
+             if (Math.random() < 0.0027) {
                 this.nextGrid[targetIdx] = TYPES.EMPTY; // dissipate much slower
              }
           }
@@ -854,26 +858,42 @@ export class PhysicsEngine {
 
         // Clone
         if (id === TYPES.CLONE) {
-          const currentTarget = this.cloneTarget[idx];
+          let currentTarget = this.cloneTarget[idx];
           if (currentTarget === TYPES.EMPTY) {
             // Find a target to clone
             for (let dy = -1; dy <= 1; dy++) {
               for (let dx = -1; dx <= 1; dx++) {
                 const neighbor = this.get(x + dx, y + dy);
                 if (neighbor !== TYPES.EMPTY && neighbor !== TYPES.CLONE && neighbor !== TYPES.WALL) {
-                  this.cloneTarget[idx] = neighbor;
-                  break;
+                   // 불과 관련된 원소들(불, 연기, 가스, 폭죽, 수증기, 용암, 산성)은 복제 대상에서 제외
+                   const isFireRelated = [TYPES.FIRE, TYPES.SMOKE, TYPES.LAVA, TYPES.ACID, TYPES.FIREWORK, TYPES.FIREWORK_STAGE1, TYPES.FIREWORK_STAGE2, TYPES.FIREWORK_ACTIVE, TYPES.GAS, TYPES.STEAM].includes(neighbor);
+                   if (!isFireRelated) {
+                      this.cloneTarget[idx] = neighbor;
+                      currentTarget = neighbor;
+                      break;
+                   }
                 }
               }
+              if (this.cloneTarget[idx] !== TYPES.EMPTY) break;
             }
-          } else {
+          } 
+          
+          if (currentTarget !== TYPES.EMPTY) {
             // Clone the target around it
              for (let dy = -1; dy <= 1; dy++) {
               for (let dx = -1; dx <= 1; dx++) {
                 const neighbor = this.get(x + dx, y + dy);
                 if (neighbor === TYPES.EMPTY) {
-                   if (Math.random() < 0.2) {
-                     this.nextGrid[this.getIndex(x + dx, y + dy)] = currentTarget;
+                   if (currentTarget === TYPES.WATER) {
+                      // 고인 물 여부 판단: 물이 아래나 대각선 아래로 떨어질 수 있는지 확인
+                      const canFall = this.canSwapLiquid(x, y + 1) || this.canSwapLiquid(x - 1, y + 1) || this.canSwapLiquid(x + 1, y + 1);
+                      if (canFall && Math.random() < 0.04) { // 떨어지는 물만 확률 1/5(0.04)로 복제
+                         this.nextGrid[this.getIndex(x + dx, y + dy)] = currentTarget;
+                      }
+                   } else {
+                      if (Math.random() < 0.2) {
+                        this.nextGrid[this.getIndex(x + dx, y + dy)] = currentTarget;
+                      }
                    }
                 }
               }

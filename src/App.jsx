@@ -117,7 +117,16 @@ function App() {
       return;
     }
 
-    if (currentElement === TYPES.FIREWORK || isSingle) {
+    if (currentElement === TYPES.FIREWORK) {
+      // 터치 포인트 포함, 주변 임의의 위치에 총 3개 설치
+      engine.set(x, y, currentElement);
+      for (let i = 0; i < 2; i++) {
+         const dx = Math.floor(Math.random() * 21) - 10; // 반경 -10 ~ 10
+         const dy = Math.floor(Math.random() * 21) - 10;
+         engine.set(x + dx, y + dy, currentElement);
+      }
+      return;
+    } else if (isSingle) {
       engine.set(x, y, currentElement);
       return;
     }
@@ -157,7 +166,7 @@ function App() {
   };
 
   const handlePointerDown = (e) => {
-    const isSingleClickElement = [TYPES.SEED, TYPES.PLANT, TYPES.TREE, TYPES.ANT].includes(currentElement);
+    const isSingleClickElement = [TYPES.SEED, TYPES.PLANT, TYPES.TREE, TYPES.ANT, TYPES.FIREWORK].includes(currentElement);
     const coords = getCanvasCoords(e);
     
     if (isSingleClickElement) {
