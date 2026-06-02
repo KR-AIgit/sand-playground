@@ -342,6 +342,21 @@ export class PhysicsEngine {
 
         // Snow (drifting slowly downwards)
         else if (id === TYPES.SNOW) {
+          // 가을바람 연출: 눈이 왼쪽으로 흩날리며 전체의 약 1/2이 서서히 소멸됨
+          if (this.windTimer > 0) {
+             if (Math.random() < 0.4) {
+                const dx = -1;
+                const dy = Math.random() < 0.5 ? -1 : 0;
+                if (this.canMoveTo(x + dx, y + dy)) {
+                   this.swap(x, y, x + dx, y + dy);
+                }
+             }
+             if (Math.random() < 0.0015) {
+                this.nextGrid[idx] = TYPES.EMPTY;
+                continue;
+             }
+          }
+
           // Melting logic
           if (this.moonTimer === 0) {
              const meltChance = this.sunTimer > 0 ? 0.0008 : 0.0004;
@@ -412,7 +427,7 @@ export class PhysicsEngine {
         else if (el.type === 'liquid') {
           if (id === TYPES.WATER && this.moonTimer > 0) {
              if (this.canMoveTo(x, y + 1) || this.canMoveTo(x - 1, y + 1) || this.canMoveTo(x + 1, y + 1)) {
-                if (Math.random() < 0.33) {
+                if (Math.random() < 0.20) {
                    this.nextGrid[idx] = TYPES.SNOW;
                 } else {
                    this.nextGrid[idx] = TYPES.EMPTY;
