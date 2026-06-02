@@ -59,6 +59,12 @@ function App() {
           canvasContainerRef.current?.classList.remove('lightning-dark');
         }
 
+        if (engine.isNight) {
+          canvasContainerRef.current?.classList.add('night-dark');
+        } else {
+          canvasContainerRef.current?.classList.remove('night-dark');
+        }
+
         let isEclipse = engine.isEclipse;
         
         if (isEclipse) {

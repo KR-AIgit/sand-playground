@@ -104,6 +104,20 @@ body {
   z-index: -1;
 }
 
+.canvas-container::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: linear-gradient(to bottom, #050510, #1a1a3a);
+  opacity: 0;
+  transition: opacity 5s ease;
+  z-index: -2; /* Behind the lightning/eclipse overlay but above the base day sky */
+}
+
+.canvas-container.night-dark::after {
+  opacity: 1;
+}
+
 .canvas-container.lightning-dark::before {
   opacity: 1;
 }

@@ -23,8 +23,15 @@ export class PhysicsEngine {
     this.toastMessage = null;
     this.rainbowTimer = 0;
     this.isRaining = false;
+    this.dayNightCycleTimer = 0;
+    this.isNight = false;
+    this.stars = Array.from({ length: 40 }, () => ({
+       x: Math.floor(Math.random() * width),
+       y: Math.floor(Math.random() * (height / 3)),
+       offset: Math.random() * Math.PI * 2,
+       size: Math.random() < 0.5 ? 1 : 2
+    }));
     this.clear();
-  }
 
   clear() {
     this.grid.fill(TYPES.EMPTY);
@@ -43,6 +50,8 @@ export class PhysicsEngine {
     this.lightningCheckTimer = 600;
     this.lightningPhase = 0;
     this.lightningPhaseTimer = 0;
+    this.dayNightCycleTimer = 0;
+    this.isNight = false;
   }
 
   getIndex(x, y) {
@@ -150,6 +159,13 @@ export class PhysicsEngine {
     if (this.windTimer > 0) this.windTimer--;
     if (this.rainbowTimer > 0) this.rainbowTimer--;
     
+    // Day/Night Cycle (120 seconds per phase at 60fps)
+    this.dayNightCycleTimer++;
+    if (this.dayNightCycleTimer >= 7200) {
+      this.dayNightCycleTimer = 0;
+      this.isNight = !this.isNight;
+    }
+
     // Copy current grid to nextGrid as baseline
     this.nextGrid.set(this.grid);
 
@@ -162,8 +178,8 @@ export class PhysicsEngine {
       }
     }
     
-    // 일식 중에는 시간이 현재(0.5)보다 2배 더 느리게(0.25) 흘러 일식이 오래 지속되도록 변경
-    const timeSpeed = this.isEclipse ? 0.25 : 1;
+    // 일식 중에는 시간이 25% 더 느리게(0.25 -> 0.1875) 흘러 일식이 더 오래 지속되도록 변경
+    const timeSpeed = this.isEclipse ? 0.1875 : 1;
     this.isRaining = false;
 
     // Global Climate Effects
@@ -433,8 +449,8 @@ export class PhysicsEngine {
         else if (el.type === 'liquid') {
           if (id === TYPES.WATER && this.moonTimer > 0) {
              if (this.canMoveTo(x, y + 1) || this.canMoveTo(x - 1, y + 1) || this.canMoveTo(x + 1, y + 1)) {
-                // 눈이 내리는 양을 0.05로 최종 조정 (적당히 소복소복 쌓이는 예쁜 양)
-                if (Math.random() < 0.05) {
+                // 눈이 내리는 양을 0.1로 상향 조정 (눈보라처럼 더 풍성하게 내림)
+                if (Math.random() < 0.1) {
                    this.nextGrid[idx] = TYPES.SNOW;
                 } else {
                    this.nextGrid[idx] = TYPES.EMPTY;
@@ -1074,6 +1090,19 @@ export class PhysicsEngine {
       data[idx + 3] = id === TYPES.EMPTY ? 0 : 255;
     }
     ctx.putImageData(imageData, 0, 0);
+
+    if (this.isNight) {
+       const time = Date.now() / 1000;
+       ctx.save();
+       for (const star of this.stars) {
+          const alpha = 0.3 + 0.7 * Math.sin(time * 1.5 + star.offset);
+          if (alpha > 0.2) {
+             ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+             ctx.fillRect(star.x, star.y, star.size, star.size);
+          }
+       }
+       ctx.restore();
+    }
 
     if (this.rainbowTimer > 0) {
       const cx = this.width / 2;
