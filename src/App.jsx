@@ -222,7 +222,7 @@ function App() {
 
       {/* Element Selector */}
       <div className="element-selector">
-        {Object.values(ELEMENTS).map((el) => {
+        {Object.values(ELEMENTS).filter(el => !el.hidden).map((el) => {
           const isSelected = currentElement === el.id;
           return (
             <button

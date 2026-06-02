@@ -83,6 +83,6 @@ export const ELEMENTS = {
     warningText: '달이 뜨면 너무 추워져서 물이 꽁꽁 얼어버려요! 달을 띄워볼까요?'
   },
   [TYPES.CLOUD]: { id: TYPES.CLOUD, name: '구름', color: [230, 230, 235], type: 'gas' },
-  [TYPES.LIGHTNING]: { id: TYPES.LIGHTNING, name: '번개', color: [255, 255, 100], type: 'energy', life: 3 },
-  [TYPES.ELECTRIC_WATER]: { id: TYPES.ELECTRIC_WATER, name: '전기물', color: [255, 255, 50], type: 'liquid', life: 15 }
+  [TYPES.LIGHTNING]: { id: TYPES.LIGHTNING, name: '번개', color: [255, 255, 100], type: 'energy', life: 3, hidden: true },
+  [TYPES.ELECTRIC_WATER]: { id: TYPES.ELECTRIC_WATER, name: '전기물', color: [255, 255, 50], type: 'liquid', life: 15, hidden: true }
 };
