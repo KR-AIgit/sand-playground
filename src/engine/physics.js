@@ -433,8 +433,8 @@ export class PhysicsEngine {
         else if (el.type === 'liquid') {
           if (id === TYPES.WATER && this.moonTimer > 0) {
              if (this.canMoveTo(x, y + 1) || this.canMoveTo(x - 1, y + 1) || this.canMoveTo(x + 1, y + 1)) {
-                // 기존 0.20 에서 90% 더 줄여서 0.02로 설정 (눈이 거의 쌓이지 않고 흩날리듯 내림)
-                if (Math.random() < 0.02) {
+                // 눈이 내리는 양을 0.05로 최종 조정 (적당히 소복소복 쌓이는 예쁜 양)
+                if (Math.random() < 0.05) {
                    this.nextGrid[idx] = TYPES.SNOW;
                 } else {
                    this.nextGrid[idx] = TYPES.EMPTY;
