@@ -1,0 +1,15 @@
+{
+  "name": "모래놀이터_JA★",
+  "short_name": "모래놀이터_JA★",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2c2f33",
+  "theme_color": "#2c2f33",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ]
+}

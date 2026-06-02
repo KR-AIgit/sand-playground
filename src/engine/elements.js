@@ -1,0 +1,88 @@
+export const TYPES = {
+  EMPTY: 0,
+  WALL: 1,
+  SAND: 2,
+  WATER: 3,
+  WOOD: 4,
+  STONE: 5,
+  ICE: 6,
+  LAVA: 7,
+  SEED: 8,
+  PLANT: 9,
+  FIRE: 10,
+  SMOKE: 11,
+  GAS: 12,
+  C4: 13,
+  ACID: 14,
+  CLONE: 15,
+  ANT: 16,
+  TREE: 17,
+  SUN: 18,
+  MOON: 19,
+  CLOUD: 20,
+  LIGHTNING: 21,
+  ELECTRIC_WATER: 22
+};
+
+export const ELEMENTS = {
+  [TYPES.EMPTY]: { id: TYPES.EMPTY, name: '지우개', color: [0, 0, 0], type: 'empty' },
+  [TYPES.WALL]: { id: TYPES.WALL, name: '벽', color: [128, 128, 128], type: 'solid', immovable: true },
+  [TYPES.SAND]: { id: TYPES.SAND, name: '모래', color: [230, 200, 120], type: 'powder' },
+  [TYPES.WATER]: { id: TYPES.WATER, name: '물', color: [60, 120, 240], type: 'liquid' },
+  [TYPES.WOOD]: { id: TYPES.WOOD, name: '목재', color: [130, 80, 30], type: 'solid', flammable: 0.05 },
+  [TYPES.STONE]: { id: TYPES.STONE, name: '돌', color: [160, 160, 160], type: 'solid' },
+  [TYPES.ICE]: { id: TYPES.ICE, name: '얼음', color: [180, 220, 255], type: 'solid', melts: true },
+  [TYPES.LAVA]: { id: TYPES.LAVA, name: '용암', color: [255, 80, 20], type: 'liquid', hot: true },
+  [TYPES.SEED]: { id: TYPES.SEED, name: '씨앗', color: [150, 200, 50], type: 'falling_solid' },
+  [TYPES.PLANT]: { id: TYPES.PLANT, name: '식물', color: [40, 180, 60], type: 'falling_solid', flammable: 0.1 },
+  [TYPES.FIRE]: { id: TYPES.FIRE, name: '불', color: [255, 50, 0], type: 'gas', life: 30 },
+  [TYPES.SMOKE]: { id: TYPES.SMOKE, name: '연기', color: [100, 100, 100], type: 'gas', life: 60 },
+  [TYPES.GAS]: { id: TYPES.GAS, name: '가스', color: [200, 255, 200], type: 'gas', flammable: 0.5 },
+  [TYPES.C4]: { 
+    id: TYPES.C4, 
+    name: '폭약', 
+    color: [200, 40, 40], 
+    type: 'solid', 
+    explosive: true,
+    warningTitle: '폭약(C4) 사용하기',
+    warningText: '폭약은 불과 만나면 "펑!" 하고 아주 크게 터져서 주변에 있는 것들을 모두 불태워버려요. 정말 사용해 볼까요?'
+  },
+  [TYPES.ACID]: { 
+    id: TYPES.ACID, 
+    name: '산성', 
+    color: [120, 255, 60], 
+    type: 'liquid', 
+    acidic: true,
+    warningTitle: '산성 액체 사용하기',
+    warningText: '산성은 닿는 물건들을 녹여버리는 무서운 초록색 물이에요. 정말 사용할까요?'
+  },
+  [TYPES.CLONE]: { 
+    id: TYPES.CLONE, 
+    name: '복제', 
+    color: [255, 0, 255], 
+    type: 'solid',
+    warningTitle: '복제 블록 사용하기',
+    warningText: '복제 블록은 닿은 물건을 계속해서 똑같이 만들어내는 마법의 블록이에요. 정말 사용할까요?'
+  },
+  [TYPES.ANT]: { id: TYPES.ANT, name: '개미', color: [20, 20, 20], type: 'bug' },
+  [TYPES.TREE]: { id: TYPES.TREE, name: '나무', color: [70, 120, 40], type: 'falling_solid', flammable: 0.1 },
+  [TYPES.SUN]: { 
+    id: TYPES.SUN, 
+    name: '해(햇빛)', 
+    color: [255, 220, 50], 
+    type: 'event',
+    warningTitle: '햇빛 쨍쨍!',
+    warningText: '해가 뜨면 엄청 더워져서 물이 마르고 사막으로 변해요! 해를 띄워볼까요?'
+  },
+  [TYPES.MOON]: { 
+    id: TYPES.MOON, 
+    name: '달(달빛)', 
+    color: [200, 200, 255], 
+    type: 'event',
+    warningTitle: '추운 달밤!',
+    warningText: '달이 뜨면 너무 추워져서 물이 꽁꽁 얼어버려요! 달을 띄워볼까요?'
+  },
+  [TYPES.CLOUD]: { id: TYPES.CLOUD, name: '구름', color: [230, 230, 235], type: 'gas' },
+  [TYPES.LIGHTNING]: { id: TYPES.LIGHTNING, name: '번개', color: [255, 255, 100], type: 'energy', life: 3 },
+  [TYPES.ELECTRIC_WATER]: { id: TYPES.ELECTRIC_WATER, name: '전기물', color: [255, 255, 50], type: 'liquid', life: 15 }
+};
