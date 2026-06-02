@@ -74,6 +74,12 @@ function App() {
         if (engine.sunTimer === 0 && engine.moonTimer === 0) {
            hasShownEclipseModal.current = false;
         }
+
+        if (engine.toastMessage) {
+           setToastMessage(engine.toastMessage);
+           engine.toastMessage = null;
+           setTimeout(() => setToastMessage(null), 4000);
+        }
       }
       engine.render(ctx, imageData);
       animationRef.current = requestAnimationFrame(loop);
@@ -183,15 +189,26 @@ function App() {
   };
 
   const handleSelectElement = (id) => {
-    if (id === TYPES.SUN && engine.sunTimer > 0) {
-      setToastMessage("☀️ 해는 하루에 한 번 뜨고 있어요! ☀️");
-      setTimeout(() => setToastMessage(null), 3000);
-      return;
+    if (id === TYPES.SUN) {
+      if (engine.sunTimer > 0 || engine.sunCooldown > 0) {
+        setToastMessage("☀️ 해는 60초에 한 번 뜨고 있어요! ☀️");
+        setTimeout(() => setToastMessage(null), 3000);
+        return;
+      }
     }
-    if (id === TYPES.MOON && engine.moonTimer > 0) {
-      setToastMessage("🌙 달은 하루에 한 번 뜨고 있어요! 🌙");
-      setTimeout(() => setToastMessage(null), 3000);
-      return;
+    if (id === TYPES.MOON) {
+      if (engine.moonTimer > 0 || engine.moonCooldown > 0) {
+        setToastMessage("🌙 달은 60초에 한 번 뜨고 있어요! 🌙");
+        setTimeout(() => setToastMessage(null), 3000);
+        return;
+      }
+    }
+    if (id === TYPES.WIND) {
+      if (engine.windTimer > 0 || engine.windCooldown > 0) {
+        setToastMessage("💨 가을바람은 60초에 한 번 불어요! 💨");
+        setTimeout(() => setToastMessage(null), 3000);
+        return;
+      }
     }
 
     const el = ELEMENTS[id];
@@ -206,8 +223,13 @@ function App() {
     if (modalElement) {
       if (modalElement.id === TYPES.SUN) {
         engine.sunTimer = 1200;
+        engine.sunCooldown = 3600;
       } else if (modalElement.id === TYPES.MOON) {
         engine.moonTimer = 1200;
+        engine.moonCooldown = 3600;
+      } else if (modalElement.id === TYPES.WIND) {
+        engine.windTimer = 600; // 10 seconds of wind
+        engine.windCooldown = 3600;
       } else {
         setCurrentElement(modalElement.id);
       }

@@ -16,6 +16,13 @@ export class PhysicsEngine {
     this.lightningPhaseTimer = 0;
     this.lightningTargetX = -1;
     this.lightningTargetY = -1;
+    this.windTimer = 0;
+    this.sunCooldown = 0;
+    this.moonCooldown = 0;
+    this.windCooldown = 0;
+    this.toastMessage = null;
+    this.rainbowTimer = 0;
+    this.isRaining = false;
     this.clear();
   }
 
@@ -25,6 +32,13 @@ export class PhysicsEngine {
     this.cloneTarget.fill(TYPES.EMPTY);
     this.sunTimer = 0;
     this.moonTimer = 0;
+    this.windTimer = 0;
+    this.sunCooldown = 0;
+    this.moonCooldown = 0;
+    this.windCooldown = 0;
+    this.toastMessage = null;
+    this.rainbowTimer = 0;
+    this.isRaining = false;
     this.lightningCooldown = 0;
     this.lightningCheckTimer = 600;
     this.lightningPhase = 0;
@@ -108,6 +122,13 @@ export class PhysicsEngine {
   }
 
   update() {
+    // Cooldowns
+    if (this.sunCooldown > 0) this.sunCooldown--;
+    if (this.moonCooldown > 0) this.moonCooldown--;
+    if (this.windCooldown > 0) this.windCooldown--;
+    if (this.windTimer > 0) this.windTimer--;
+    if (this.rainbowTimer > 0) this.rainbowTimer--;
+    
     // Copy current grid to nextGrid as baseline
     this.nextGrid.set(this.grid);
 
@@ -121,6 +142,7 @@ export class PhysicsEngine {
     }
     
     const timeSpeed = this.isEclipse ? 0.5 : 1;
+    this.isRaining = false;
 
     // Global Climate Effects
     if (this.sunTimer > 0) {
@@ -130,7 +152,7 @@ export class PhysicsEngine {
         const ry = Math.floor(Math.random() * this.height);
         const rId = this.get(rx, ry);
         if (rId === TYPES.ICE) this.nextGrid[this.getIndex(rx, ry)] = TYPES.WATER;
-        else if (rId === TYPES.WATER) this.nextGrid[this.getIndex(rx, ry)] = TYPES.CLOUD;
+        else if (rId === TYPES.WATER) this.nextGrid[this.getIndex(rx, ry)] = TYPES.STEAM;
         else if ((rId === TYPES.PLANT || rId === TYPES.TREE || rId === TYPES.SEED) && Math.random() < 0.5) {
            this.nextGrid[this.getIndex(rx, ry)] = TYPES.SAND;
         }
@@ -372,6 +394,13 @@ export class PhysicsEngine {
                 if (neighbor === TYPES.WATER) {
                   this.nextGrid[this.getIndex(x + dx, y + dy)] = TYPES.STONE;
                   if (Math.random() < 0.5) this.nextGrid[idx] = TYPES.STONE;
+                  if (y > 0 && this.get(x, y - 1) === TYPES.EMPTY) {
+                     this.nextGrid[this.getIndex(x, y - 1)] = TYPES.STEAM;
+                  }
+                  if (this.toastMessage === null && !this.lavaToastShown) {
+                     this.toastMessage = "앗 뜨거워! 펄펄 끓는 용암이 차가운 물을 만나면 굳어서 단단한 돌이 된답니다!";
+                     this.lavaToastShown = true;
+                  }
                 } else if (neighbor === TYPES.ICE) {
                   this.nextGrid[this.getIndex(x + dx, y + dy)] = TYPES.WATER;
                 } else if (ELEMENTS[neighbor] && ELEMENTS[neighbor].flammable) {
@@ -450,6 +479,19 @@ export class PhysicsEngine {
           if (id === TYPES.SMOKE) {
              if (Math.random() < 0.003) {
                 this.nextGrid[idx] = TYPES.EMPTY; // dissipate much slower
+             }
+          }
+          if (id === TYPES.STEAM) {
+             if (y < 15) {
+                if (Math.random() < 0.05) {
+                   this.nextGrid[idx] = TYPES.CLOUD;
+                   if (this.toastMessage === null && !this.waterCycleToastShown) {
+                      this.toastMessage = "햇빛을 받은 물이 뜨거워져서 수증기로 변해 하늘로 올라가 구름이 되었어요!";
+                      this.waterCycleToastShown = true;
+                   }
+                }
+             } else if (Math.random() < 0.01) {
+                this.nextGrid[idx] = TYPES.EMPTY;
              }
           }
           if (id === TYPES.CLOUD) {
@@ -549,6 +591,18 @@ export class PhysicsEngine {
               }
             }
           }
+        }
+
+        if (id === TYPES.PLANT || id === TYPES.TREE) {
+           if (this.windTimer > 0 && Math.random() < 0.02) {
+              if (this.canSwapLiquid(x, y+1) || Math.random() < 0.1) {
+                 this.nextGrid[idx] = TYPES.LEAF_AUTUMN;
+                 if (this.toastMessage === null && !this.autumnToastShown) {
+                    this.toastMessage = "가을이 오면 나뭇잎이 예쁘게 물들고, 겨울을 준비하기 위해 땅으로 떨어져요!";
+                    this.autumnToastShown = true;
+                 }
+              }
+           }
         }
 
         // Tree Growth
@@ -698,6 +752,15 @@ export class PhysicsEngine {
 
     // Apply nextGrid back to grid
     this.grid.set(this.nextGrid);
+
+    // Rainbow logic
+    if (this.sunTimer > 0 && this.isRaining) {
+      this.rainbowTimer = 300;
+      if (this.toastMessage === null && !this.rainbowToastShown) {
+         this.toastMessage = "비가 올 때 햇빛이 비치면, 물방울이 빛을 꺾어 예쁜 무지개를 만들어요!";
+         this.rainbowToastShown = true;
+      }
+    }
   }
 
   explode(cx, cy, radius, type) {
@@ -785,6 +848,24 @@ export class PhysicsEngine {
       data[idx + 3] = id === TYPES.EMPTY ? 0 : 255;
     }
     ctx.putImageData(imageData, 0, 0);
+
+    if (this.rainbowTimer > 0) {
+      const cx = this.width / 2;
+      const cy = this.height / 2 + 50;
+      const maxRadius = this.width / 2 - 20;
+      const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
+      
+      ctx.save();
+      ctx.globalAlpha = (this.rainbowTimer > 60 ? 1 : this.rainbowTimer / 60) * 0.5;
+      for (let i = 0; i < colors.length; i++) {
+         ctx.beginPath();
+         ctx.arc(cx, cy, maxRadius - i * 5, Math.PI, 0);
+         ctx.lineWidth = 5;
+         ctx.strokeStyle = colors[i];
+         ctx.stroke();
+      }
+      ctx.restore();
+    }
 
     // Draw Sun and Moon as UI overlays directly on the canvas
     const drawCelestial = (timer, color, isSun) => {

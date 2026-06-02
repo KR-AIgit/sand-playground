@@ -31,7 +31,10 @@ export const TYPES = {
   SPARK_YELLOW: 29,
   SPARK_PINK: 30,
   SPARK_BLUE: 31,
-  SPARK_GREEN: 32
+  SPARK_GREEN: 32,
+  STEAM: 33,
+  LEAF_AUTUMN: 34,
+  WIND: 35
 };
 
 export const ELEMENTS = {
@@ -104,5 +107,15 @@ export const ELEMENTS = {
   [TYPES.SPARK_YELLOW]: { id: TYPES.SPARK_YELLOW, name: '노란불꽃', color: [255, 255, 50], type: 'falling_solid', hidden: true },
   [TYPES.SPARK_PINK]: { id: TYPES.SPARK_PINK, name: '핑크불꽃', color: [255, 100, 200], type: 'falling_solid', hidden: true },
   [TYPES.SPARK_BLUE]: { id: TYPES.SPARK_BLUE, name: '파란불꽃', color: [50, 150, 255], type: 'falling_solid', hidden: true },
-  [TYPES.SPARK_GREEN]: { id: TYPES.SPARK_GREEN, name: '초록불꽃', color: [50, 255, 100], type: 'falling_solid', hidden: true }
+  [TYPES.SPARK_GREEN]: { id: TYPES.SPARK_GREEN, name: '초록불꽃', color: [50, 255, 100], type: 'falling_solid', hidden: true },
+  [TYPES.STEAM]: { id: TYPES.STEAM, name: '수증기', color: [220, 220, 230], type: 'gas', hidden: true },
+  [TYPES.LEAF_AUTUMN]: { id: TYPES.LEAF_AUTUMN, name: '낙엽', color: [255, 140, 40], type: 'falling_solid', flammable: 0.3, hidden: true },
+  [TYPES.WIND]: { 
+    id: TYPES.WIND, 
+    name: '가을바람', 
+    color: [200, 230, 200], 
+    type: 'event',
+    warningTitle: '가을바람이 불어와요!',
+    warningText: '가을바람이 불면 초록색 나뭇잎들이 예쁜 색으로 물들고 바닥으로 떨어져요! 바람을 불어볼까요?'
+  }
 };
