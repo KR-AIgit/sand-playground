@@ -32,6 +32,7 @@ export class PhysicsEngine {
        size: Math.random() < 0.5 ? 1 : 2
     }));
     this.clear();
+  }
 
   clear() {
     this.grid.fill(TYPES.EMPTY);
