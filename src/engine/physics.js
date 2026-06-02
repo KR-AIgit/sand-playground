@@ -98,6 +98,27 @@ export class PhysicsEngine {
     }
   }
 
+  findPermeableEmpty(x, y, dx, dy, maxDist = 20) {
+     for(let i=1; i<=maxDist; i++) {
+        const nx = x + dx * i;
+        const ny = y + dy * i;
+        if (nx < 0 || nx >= this.width || ny < 0 || ny >= this.height) return null;
+        
+        const curr = this.grid[this.getIndex(nx, ny)];
+        const next = this.nextGrid[this.getIndex(nx, ny)];
+        
+        // 잎이나 가지는 통과 가능
+        const isPermeable = (curr === TYPES.TREE || curr === TYPES.WOOD || curr === TYPES.PLANT || curr === TYPES.LEAF_AUTUMN || curr === TYPES.FLOWER_PINK || curr === TYPES.FLOWER_1 || curr === TYPES.FLOWER_2 || curr === TYPES.FLOWER_3 || curr === TYPES.SEED);
+        
+        if (curr === TYPES.EMPTY && next === TYPES.EMPTY) {
+           return {x: nx, y: ny};
+        } else if (!isPermeable) {
+           return null; // 막힘
+        }
+     }
+     return null;
+  }
+
   triggerLightning(startX, startY) {
     const branches = Math.floor(Math.random() * 3) + 1; // 1 to 3 branches
     for (let b = 0; b < branches; b++) {
@@ -278,19 +299,43 @@ export class PhysicsEngine {
 
         // Powder (Sand, Seed)
         else if (el.type === 'powder') {
+          let moved = false;
           if (this.canSwapLiquid(x, y + 1)) {
             this.swap(x, y, x, y + 1);
+            moved = true;
           } else {
+            const perm = this.findPermeableEmpty(x, y, 0, 1, 15);
+            if (perm) {
+              this.swap(x, y, perm.x, perm.y);
+              moved = true;
+            }
+          }
+
+          if (!moved) {
             const canGoLeft = this.canSwapLiquid(x - 1, y + 1);
             const canGoRight = this.canSwapLiquid(x + 1, y + 1);
             
             if (canGoLeft && canGoRight) {
               if (Math.random() < 0.5) this.swap(x, y, x - 1, y + 1);
               else this.swap(x, y, x + 1, y + 1);
+              moved = true;
             } else if (canGoLeft) {
               this.swap(x, y, x - 1, y + 1);
+              moved = true;
             } else if (canGoRight) {
               this.swap(x, y, x + 1, y + 1);
+              moved = true;
+            } else {
+               const pLeft = this.findPermeableEmpty(x, y, -1, 1, 10);
+               const pRight = this.findPermeableEmpty(x, y, 1, 1, 10);
+               if (pLeft && pRight) {
+                  const target = Math.random() < 0.5 ? pLeft : pRight;
+                  this.swap(x, y, target.x, target.y);
+               } else if (pLeft) {
+                  this.swap(x, y, pLeft.x, pLeft.y);
+               } else if (pRight) {
+                  this.swap(x, y, pRight.x, pRight.y);
+               }
             }
           }
         }
@@ -307,9 +352,19 @@ export class PhysicsEngine {
           }
 
           if (Math.random() < 0.3) {
+            let moved = false;
             if (this.canSwapLiquid(x, y + 1)) {
               this.swap(x, y, x, y + 1);
+              moved = true;
             } else {
+              const perm = this.findPermeableEmpty(x, y, 0, 1, 15);
+              if (perm) {
+                 this.swap(x, y, perm.x, perm.y);
+                 moved = true;
+              }
+            }
+
+            if (!moved) {
               const canGoLeft = this.canSwapLiquid(x - 1, y + 1);
               const canGoRight = this.canSwapLiquid(x + 1, y + 1);
               if (canGoLeft && canGoRight) {
@@ -319,6 +374,17 @@ export class PhysicsEngine {
                 this.swap(x, y, x - 1, y + 1);
               } else if (canGoRight) {
                 this.swap(x, y, x + 1, y + 1);
+              } else {
+                 const pLeft = this.findPermeableEmpty(x, y, -1, 1, 10);
+                 const pRight = this.findPermeableEmpty(x, y, 1, 1, 10);
+                 if (pLeft && pRight) {
+                    const target = Math.random() < 0.5 ? pLeft : pRight;
+                    this.swap(x, y, target.x, target.y);
+                 } else if (pLeft) {
+                    this.swap(x, y, pLeft.x, pLeft.y);
+                 } else if (pRight) {
+                    this.swap(x, y, pRight.x, pRight.y);
+                 }
               }
             }
           }
@@ -334,6 +400,11 @@ export class PhysicsEngine {
         else if (el.type === 'falling_solid') {
           if (this.canSwapLiquid(x, y + 1)) {
             this.swap(x, y, x, y + 1);
+          } else {
+            const perm = this.findPermeableEmpty(x, y, 0, 1, 15);
+            if (perm) {
+              this.swap(x, y, perm.x, perm.y);
+            }
           }
         }
 
@@ -349,20 +420,49 @@ export class PhysicsEngine {
           if (id === TYPES.ELECTRIC_WATER && Math.random() < 0.05) {
              this.nextGrid[idx] = TYPES.WATER;
           }
+          let moved = false;
           if (this.canMoveTo(x, y + 1)) {
             this.swap(x, y, x, y + 1);
+            moved = true;
           } else {
+             const perm = this.findPermeableEmpty(x, y, 0, 1, 15);
+             if (perm) {
+                this.swap(x, y, perm.x, perm.y);
+                moved = true;
+             }
+          }
+
+          if (!moved) {
             const canGoLeft = this.canMoveTo(x - 1, y + 1);
             const canGoRight = this.canMoveTo(x + 1, y + 1);
             
             if (canGoLeft && canGoRight) {
               if (Math.random() < 0.5) this.swap(x, y, x - 1, y + 1);
               else this.swap(x, y, x + 1, y + 1);
+              moved = true;
             } else if (canGoLeft) {
               this.swap(x, y, x - 1, y + 1);
+              moved = true;
             } else if (canGoRight) {
               this.swap(x, y, x + 1, y + 1);
+              moved = true;
             } else {
+               const pLeft = this.findPermeableEmpty(x, y, -1, 1, 10);
+               const pRight = this.findPermeableEmpty(x, y, 1, 1, 10);
+               if (pLeft && pRight) {
+                  const target = Math.random() < 0.5 ? pLeft : pRight;
+                  this.swap(x, y, target.x, target.y);
+                  moved = true;
+               } else if (pLeft) {
+                  this.swap(x, y, pLeft.x, pLeft.y);
+                  moved = true;
+               } else if (pRight) {
+                  this.swap(x, y, pRight.x, pRight.y);
+                  moved = true;
+               }
+            }
+
+            if (!moved) {
               // spread horizontally further (water pooling effect)
               const maxSpread = 5;
               let canL = true;
