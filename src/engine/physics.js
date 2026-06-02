@@ -156,20 +156,22 @@ export class PhysicsEngine {
         this.lightningCheckTimer = 600;
         let mixFound = false;
         let mixX = -1, mixY = -1;
-        for (let i = 0; i < 150; i++) {
-          const rx = Math.floor(Math.random() * this.width);
-          const ry = Math.floor(Math.random() * this.height);
-          if (this.get(rx, ry) === TYPES.CLOUD) {
+        for (let idx = 0; idx < this.width * this.height; idx++) {
+          if (this.grid[idx] === TYPES.CLOUD) {
+            const rx = idx % this.width;
+            const ry = Math.floor(idx / this.width);
+            let localFound = false;
             for(let dx=-1; dx<=1; dx++) {
               for(let dy=-1; dy<=1; dy++) {
                 if (this.get(rx+dx, ry+dy) === TYPES.SMOKE) {
                   mixFound = true;
                   mixX = rx;
                   mixY = ry;
+                  localFound = true;
                   break;
                 }
               }
-              if(mixFound) break;
+              if (localFound) break;
             }
           }
           if(mixFound) break;

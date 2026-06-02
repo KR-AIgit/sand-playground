@@ -52,7 +52,7 @@ function App() {
         engine.update();
         if (engine.lightningPhase === 1) {
           canvasContainerRef.current?.classList.add('lightning-dark');
-        } else if (engine.lightningPhase === 0) {
+        } else if (engine.lightningPhase === 2 || engine.lightningPhase === 0) {
           canvasContainerRef.current?.classList.remove('lightning-dark');
         }
       }
