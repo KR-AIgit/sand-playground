@@ -345,6 +345,9 @@ export class PhysicsEngine {
         else if (id === TYPES.SNOW) {
           // 가을바람 연출: 눈이 왼쪽 화면 밖으로 흩날리며 전체의 약 1/2이 서서히 소멸됨
           if (this.windTimer > 0) {
+             let targetIdx = idx;
+             let windMoved = false;
+             
              if (Math.random() < 0.8) { // 왼쪽으로 빠르게 이동
                 const dx = -1;
                 const dy = Math.random() < 0.5 ? -1 : 0;
@@ -353,12 +356,16 @@ export class PhysicsEngine {
                    continue;
                 } else if (this.canMoveTo(x + dx, y + dy)) {
                    this.swap(x, y, x + dx, y + dy);
+                   targetIdx = this.getIndex(x + dx, y + dy);
+                   windMoved = true;
                 }
              }
              if (Math.random() < 0.00115) { // 10초 동안 정확히 전체의 1/2 소멸 확률
-                this.nextGrid[idx] = TYPES.EMPTY;
+                this.nextGrid[targetIdx] = TYPES.EMPTY;
                 continue;
              }
+             
+             if (windMoved) continue; // 바람에 의해 이동한 프레임은 중력(낙하) 처리를 건너뛰어 복제 버그 방지
           }
 
           // Melting logic
@@ -887,7 +894,7 @@ export class PhysicsEngine {
                    if (currentTarget === TYPES.WATER) {
                       // 고인 물 여부 판단: 물이 아래나 대각선 아래로 떨어질 수 있는지 확인
                       const canFall = this.canSwapLiquid(x, y + 1) || this.canSwapLiquid(x - 1, y + 1) || this.canSwapLiquid(x + 1, y + 1);
-                      if (canFall && Math.random() < 0.04) { // 떨어지는 물만 확률 1/5(0.04)로 복제
+                      if (canFall && Math.random() < 0.013) { // 떨어지는 물만 복제하며, 기존 복제량의 1/3 수준으로 추가 축소 (0.013)
                          this.nextGrid[this.getIndex(x + dx, y + dy)] = currentTarget;
                       }
                    } else {
