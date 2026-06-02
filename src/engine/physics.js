@@ -359,9 +359,10 @@ export class PhysicsEngine {
 
           // Melting logic
           if (this.moonTimer === 0) {
-             const meltChance = this.sunTimer > 0 ? 0.0008 : 0.0004;
+             const meltChance = this.sunTimer > 0 ? 0.0016 : 0.0008;
              if (Math.random() < meltChance) {
-                this.nextGrid[idx] = TYPES.WATER;
+                // 수분이 차오르는 이질적인 연출을 막기 위해 눈이 물로 변하지 않고 자연스럽게 증발(소멸)되도록 수정
+                this.nextGrid[idx] = TYPES.EMPTY;
                 continue;
              }
           }
