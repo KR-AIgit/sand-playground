@@ -12,7 +12,7 @@ export const TYPES = {
   FIRE: 10,
   SMOKE: 11,
   GAS: 12,
-  C4: 13,
+  FIREWORK: 13,
   ACID: 14,
   CLONE: 15,
   ANT: 16,
@@ -26,7 +26,12 @@ export const TYPES = {
   FLOWER_1: 24,
   FLOWER_2: 25,
   FLOWER_3: 26,
-  SNOW: 27
+  SNOW: 27,
+  FIREWORK_ACTIVE: 28,
+  SPARK_YELLOW: 29,
+  SPARK_PINK: 30,
+  SPARK_BLUE: 31,
+  SPARK_GREEN: 32
 };
 
 export const ELEMENTS = {
@@ -43,14 +48,14 @@ export const ELEMENTS = {
   [TYPES.FIRE]: { id: TYPES.FIRE, name: '불', color: [255, 50, 0], type: 'gas', life: 30 },
   [TYPES.SMOKE]: { id: TYPES.SMOKE, name: '연기', color: [100, 100, 100], type: 'gas', life: 60 },
   [TYPES.GAS]: { id: TYPES.GAS, name: '가스', color: [200, 255, 200], type: 'gas', flammable: 0.5 },
-  [TYPES.C4]: { 
-    id: TYPES.C4, 
-    name: '폭약', 
-    color: [200, 40, 40], 
+  [TYPES.FIREWORK]: { 
+    id: TYPES.FIREWORK, 
+    name: '폭죽', 
+    color: [250, 100, 100], 
     type: 'solid', 
     explosive: true,
-    warningTitle: '폭약(C4) 사용하기',
-    warningText: '폭약은 불과 만나면 "펑!" 하고 아주 크게 터져서 주변에 있는 것들을 모두 불태워버려요. 정말 사용해 볼까요?'
+    warningTitle: '화려한 불꽃축제!',
+    warningText: '폭죽에 불을 붙이면 하늘 높이 솟아올라 펑! 하고 예쁜 모양으로 터진답니다. 불꽃축제를 시작해볼까요?'
   },
   [TYPES.ACID]: { 
     id: TYPES.ACID, 
@@ -94,5 +99,10 @@ export const ELEMENTS = {
   [TYPES.FLOWER_1]: { id: TYPES.FLOWER_1, name: '빨간꽃', color: [255, 100, 100], type: 'falling_solid', flammable: 0.1, hidden: true },
   [TYPES.FLOWER_2]: { id: TYPES.FLOWER_2, name: '노란꽃', color: [255, 220, 50], type: 'falling_solid', flammable: 0.1, hidden: true },
   [TYPES.FLOWER_3]: { id: TYPES.FLOWER_3, name: '보라꽃', color: [150, 100, 255], type: 'falling_solid', flammable: 0.1, hidden: true },
-  [TYPES.SNOW]: { id: TYPES.SNOW, name: '눈', color: [240, 240, 255], type: 'falling_solid', flammable: 0, hidden: true }
+  [TYPES.SNOW]: { id: TYPES.SNOW, name: '눈', color: [240, 240, 255], type: 'falling_solid', flammable: 0, hidden: true },
+  [TYPES.FIREWORK_ACTIVE]: { id: TYPES.FIREWORK_ACTIVE, name: '점화된폭죽', color: [255, 150, 50], type: 'solid', hidden: true },
+  [TYPES.SPARK_YELLOW]: { id: TYPES.SPARK_YELLOW, name: '노란불꽃', color: [255, 255, 50], type: 'falling_solid', hidden: true },
+  [TYPES.SPARK_PINK]: { id: TYPES.SPARK_PINK, name: '핑크불꽃', color: [255, 100, 200], type: 'falling_solid', hidden: true },
+  [TYPES.SPARK_BLUE]: { id: TYPES.SPARK_BLUE, name: '파란불꽃', color: [50, 150, 255], type: 'falling_solid', hidden: true },
+  [TYPES.SPARK_GREEN]: { id: TYPES.SPARK_GREEN, name: '초록불꽃', color: [50, 255, 100], type: 'falling_solid', hidden: true }
 };

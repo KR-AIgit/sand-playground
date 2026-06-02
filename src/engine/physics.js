@@ -308,6 +308,13 @@ export class PhysicsEngine {
 
         // Liquid (Water, Lava, Acid)
         else if (el.type === 'liquid') {
+          if (id === TYPES.WATER && this.moonTimer > 0) {
+             if (this.canMoveTo(x, y + 1) || this.canMoveTo(x - 1, y + 1) || this.canMoveTo(x + 1, y + 1)) {
+                this.nextGrid[idx] = TYPES.SNOW;
+                continue;
+             }
+          }
+
           if (id === TYPES.ELECTRIC_WATER && Math.random() < 0.05) {
              this.nextGrid[idx] = TYPES.WATER;
           }
@@ -429,9 +436,9 @@ export class PhysicsEngine {
                 if (neighbor === TYPES.ICE && Math.random() < 0.2) {
                   this.nextGrid[this.getIndex(x + dx, y + dy)] = TYPES.WATER;
                 }
-                if (neighbor === TYPES.C4) {
-                   // C4 Explosion!
-                   this.explode(x + dx, y + dy, 10, TYPES.FIRE);
+                if (neighbor === TYPES.FIREWORK) {
+                   // Ignite firework!
+                   this.nextGrid[this.getIndex(x + dx, y + dy)] = TYPES.FIREWORK_ACTIVE;
                 }
               }
             }
@@ -620,6 +627,72 @@ export class PhysicsEngine {
              }
           }
         }
+
+        // FIREWORK_ACTIVE: Ascends rapidly
+        if (id === TYPES.FIREWORK_ACTIVE) {
+          // Move up by 1 or 2 pixels
+          const dy = Math.random() < 0.5 ? -1 : -2;
+          if (this.canMoveTo(x, y + dy)) {
+            this.swap(x, y, x, y + dy);
+            // Leave smoke or fire trail
+            if (Math.random() < 0.6) {
+              this.nextGrid[this.getIndex(x, y)] = Math.random() < 0.5 ? TYPES.FIRE : TYPES.SMOKE;
+            }
+          } else {
+            // Hit something, explode early
+            this.explodeFirework(x, y);
+          }
+          // Explode at top 1/3 of the screen
+          if (y < this.height / 3 && Math.random() < 0.1) {
+             this.explodeFirework(x, y);
+          }
+        }
+
+        // Sparks: fall slowly and disappear
+        if (id === TYPES.SPARK_YELLOW || id === TYPES.SPARK_PINK || id === TYPES.SPARK_BLUE || id === TYPES.SPARK_GREEN) {
+           if (Math.random() < 0.05) {
+              this.nextGrid[idx] = TYPES.EMPTY; // Disappear
+           } else {
+              // Fall like snow
+              if (Math.random() < 0.5) {
+                if (this.canSwapLiquid(x, y + 1)) {
+                  this.swap(x, y, x, y + 1);
+                } else {
+                  const dx = Math.random() < 0.5 ? -1 : 1;
+                  if (this.canSwapLiquid(x + dx, y + 1)) {
+                    this.swap(x, y, x + dx, y + 1);
+                  }
+                }
+              }
+           }
+        }
+        if (id === TYPES.CLONE) {
+          const currentTarget = this.cloneTarget[idx];
+          if (currentTarget === TYPES.EMPTY) {
+            // Find a target to clone
+            for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                const neighbor = this.get(x + dx, y + dy);
+                if (neighbor !== TYPES.EMPTY && neighbor !== TYPES.CLONE && neighbor !== TYPES.WALL) {
+                  this.cloneTarget[idx] = neighbor;
+                  break;
+                }
+              }
+            }
+          } else {
+            // Clone the target around it
+             for (let dy = -1; dy <= 1; dy++) {
+              for (let dx = -1; dx <= 1; dx++) {
+                const neighbor = this.get(x + dx, y + dy);
+                if (neighbor === TYPES.EMPTY) {
+                   if (Math.random() < 0.2) {
+                     this.nextGrid[this.getIndex(x + dx, y + dy)] = currentTarget;
+                   }
+                }
+              }
+             }
+          }
+        }
       }
     }
 
@@ -645,6 +718,58 @@ export class PhysicsEngine {
           }
         }
       }
+    }
+  }
+
+  explodeFirework(cx, cy) {
+    // 1. Base Explosion (Red/Orange Fire)
+    this.nextGrid[this.getIndex(cx, cy)] = TYPES.EMPTY; // Remove the active firework
+    this.explode(cx, cy, 3, TYPES.FIRE);
+    
+    // 2. Spread 5-8 branches of fire
+    const branches = 5 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < branches; i++) {
+       const angle = (Math.PI * 2 / branches) * i;
+       const dist = 5 + Math.random() * 10;
+       const bx = Math.floor(cx + Math.cos(angle) * dist);
+       const by = Math.floor(cy + Math.sin(angle) * dist);
+       if (bx >= 0 && bx < this.width && by >= 0 && by < this.height) {
+          this.explode(bx, by, 2, TYPES.FIRE);
+       }
+    }
+
+    // 3. Pattern (Flower, Heart, Spaceship, Rabbit)
+    const patterns = [
+      // 0: Yellow Flower
+      { type: TYPES.SPARK_YELLOW, points: [[0,0], [0,-2], [0,-3], [-1,-1], [-2,0], [-3,0], [-1,1], [0,2], [0,3], [1,1], [2,0], [3,0]] },
+      // 1: Pink Heart
+      { type: TYPES.SPARK_PINK, points: [[0,3], [-1,2], [-2,1], [-3,0], [-3,-1], [-2,-2], [-1,-2], [0,-1], [1,-2], [2,-2], [3,-1], [3,0], [2,1], [1,2]] },
+      // 2: Blue Spaceship
+      { type: TYPES.SPARK_BLUE, points: [[0,-3], [-1,-1], [1,-1], [-2,1], [2,1], [-3,2], [3,2], [-1,3], [1,3], [0,0]] },
+      // 3: Green Rabbit
+      { type: TYPES.SPARK_GREEN, points: [[-1,-3], [-1,-2], [1,-3], [1,-2], [0,-1], [-2,0], [2,0], [-2,1], [2,1], [-1,2], [0,2], [1,2]] }
+    ];
+
+    const selected = patterns[Math.floor(Math.random() * patterns.length)];
+    const scale = 2; // Scale up the pattern
+    
+    for (const [px, py] of selected.points) {
+       const targetX = cx + (px * scale);
+       const targetY = cy + (py * scale);
+       if (targetX >= 0 && targetX < this.width && targetY >= 0 && targetY < this.height) {
+          // Fill a small 2x2 or 3x3 box for each point so it's visible
+          for(let dy = -1; dy <= 1; dy++) {
+             for(let dx = -1; dx <= 1; dx++) {
+                if (Math.random() < 0.8) {
+                   const finalX = targetX + dx;
+                   const finalY = targetY + dy;
+                   if (finalX >= 0 && finalX < this.width && finalY >= 0 && finalY < this.height && this.get(finalX, finalY) !== TYPES.WALL) {
+                      this.nextGrid[this.getIndex(finalX, finalY)] = selected.type;
+                   }
+                }
+             }
+          }
+       }
     }
   }
 

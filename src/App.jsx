@@ -16,6 +16,7 @@ function App() {
   const [isPlaying, setIsPlaying] = useState(true);
   const [modalElement, setModalElement] = useState(null);
   const [eclipseInfo, setEclipseInfo] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
   const hasShownEclipseModal = useRef(false);
   const animationRef = useRef(null);
   const isDrawing = useRef(false);
@@ -102,6 +103,11 @@ function App() {
       return;
     }
 
+    if (currentElement === TYPES.FIREWORK) {
+      engine.set(x, y, TYPES.FIREWORK);
+      return;
+    }
+
     if (forceSingle) {
       engine.set(x, y, currentElement);
       return;
@@ -177,6 +183,17 @@ function App() {
   };
 
   const handleSelectElement = (id) => {
+    if (id === TYPES.SUN && engine.sunTimer > 0) {
+      setToastMessage("☀️ 해는 하루에 한 번 뜨고 있어요! ☀️");
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
+    }
+    if (id === TYPES.MOON && engine.moonTimer > 0) {
+      setToastMessage("🌙 달은 하루에 한 번 뜨고 있어요! 🌙");
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
+    }
+
     const el = ELEMENTS[id];
     if (el.warningText) {
       setModalElement(el);
@@ -289,12 +306,18 @@ function App() {
         </div>
       )}
 
-      {/* Eclipse Toast */}
+      {/* Eclipse/General Toast */}
       {eclipseInfo && (
         <div className="eclipse-toast">
           <h3>🌞 일식(Solar Eclipse) 발생! 🌚</h3>
           <p>달이 태양과 지구 사이에 위치하여 태양빛을 가리는 현상입니다!</p>
           <button onClick={() => setEclipseInfo(false)}>닫기</button>
+        </div>
+      )}
+
+      {toastMessage && (
+        <div className="eclipse-toast">
+          <h3>{toastMessage}</h3>
         </div>
       )}
     </div>
