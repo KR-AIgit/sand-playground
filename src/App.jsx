@@ -15,6 +15,8 @@ function App() {
   const [brushSize, setBrushSize] = useState(3);
   const [isPlaying, setIsPlaying] = useState(true);
   const [modalElement, setModalElement] = useState(null);
+  const [eclipseInfo, setEclipseInfo] = useState(false);
+  const hasShownEclipseModal = useRef(false);
   const animationRef = useRef(null);
   const isDrawing = useRef(false);
 
@@ -54,6 +56,29 @@ function App() {
           canvasContainerRef.current?.classList.add('lightning-dark');
         } else if (engine.lightningPhase === 2 || engine.lightningPhase === 0) {
           canvasContainerRef.current?.classList.remove('lightning-dark');
+        }
+
+        let isEclipse = false;
+        if (engine.sunTimer > 0 && engine.moonTimer > 0) {
+           const sunX = Math.floor(((1200 - engine.sunTimer) / 1200) * CANVAS_WIDTH);
+           const moonX = Math.floor((engine.moonTimer / 1200) * CANVAS_WIDTH);
+           if (Math.abs(sunX - moonX) < 15) {
+              isEclipse = true;
+           }
+        }
+        
+        if (isEclipse) {
+          canvasContainerRef.current?.classList.add('eclipse-dark');
+          if (!hasShownEclipseModal.current) {
+             setEclipseInfo(true);
+             hasShownEclipseModal.current = true;
+          }
+        } else {
+          canvasContainerRef.current?.classList.remove('eclipse-dark');
+        }
+        
+        if (engine.sunTimer === 0 && engine.moonTimer === 0) {
+           hasShownEclipseModal.current = false;
         }
       }
       engine.render(ctx, imageData);
@@ -170,9 +195,9 @@ function App() {
   const confirmModal = () => {
     if (modalElement) {
       if (modalElement.id === TYPES.SUN) {
-        engine.sunTimer = 120;
+        engine.sunTimer = 1200;
       } else if (modalElement.id === TYPES.MOON) {
-        engine.moonTimer = 120;
+        engine.moonTimer = 1200;
       } else {
         setCurrentElement(modalElement.id);
       }
@@ -268,6 +293,15 @@ function App() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Eclipse Toast */}
+      {eclipseInfo && (
+        <div className="eclipse-toast">
+          <h3>🌞 일식(Solar Eclipse) 발생! 🌚</h3>
+          <p>달이 태양과 지구 사이에 위치하여 태양빛을 가리는 현상입니다!</p>
+          <button onClick={() => setEclipseInfo(false)}>닫기</button>
         </div>
       )}
     </div>

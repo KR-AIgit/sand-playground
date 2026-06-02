@@ -114,7 +114,7 @@ export class PhysicsEngine {
     // Global Climate Effects
     if (this.sunTimer > 0) {
       this.sunTimer--;
-      for (let i = 0; i < 75; i++) {
+      for (let i = 0; i < 6; i++) {
         const rx = Math.floor(Math.random() * this.width);
         const ry = Math.floor(Math.random() * this.height);
         const rId = this.get(rx, ry);
@@ -127,10 +127,17 @@ export class PhysicsEngine {
     }
     if (this.moonTimer > 0) {
       this.moonTimer--;
-      for (let i = 0; i < 75; i++) {
+      for (let i = 0; i < 6; i++) {
         const rx = Math.floor(Math.random() * this.width);
         const ry = Math.floor(Math.random() * this.height);
-        if (this.get(rx, ry) === TYPES.WATER) this.nextGrid[this.getIndex(rx, ry)] = TYPES.ICE;
+        const rId = this.get(rx, ry);
+        if (rId === TYPES.WATER) {
+           this.nextGrid[this.getIndex(rx, ry)] = TYPES.SNOW;
+        } else if (rId === TYPES.SAND) {
+           if (ry > 0 && this.get(rx, ry - 1) === TYPES.EMPTY) {
+              this.nextGrid[this.getIndex(rx, ry - 1)] = TYPES.ICE;
+           }
+        }
       }
     }
 
@@ -247,6 +254,32 @@ export class PhysicsEngine {
               this.swap(x, y, x - 1, y + 1);
             } else if (canGoRight) {
               this.swap(x, y, x + 1, y + 1);
+            }
+          }
+        }
+
+        // Snow (drifting slowly downwards)
+        else if (id === TYPES.SNOW) {
+          if (Math.random() < 0.3) {
+            if (this.canSwapLiquid(x, y + 1)) {
+              this.swap(x, y, x, y + 1);
+            } else {
+              const canGoLeft = this.canSwapLiquid(x - 1, y + 1);
+              const canGoRight = this.canSwapLiquid(x + 1, y + 1);
+              if (canGoLeft && canGoRight) {
+                if (Math.random() < 0.5) this.swap(x, y, x - 1, y + 1);
+                else this.swap(x, y, x + 1, y + 1);
+              } else if (canGoLeft) {
+                this.swap(x, y, x - 1, y + 1);
+              } else if (canGoRight) {
+                this.swap(x, y, x + 1, y + 1);
+              }
+            }
+          }
+          if (Math.random() < 0.1) {
+            const dx = Math.random() < 0.5 ? -1 : 1;
+            if (this.canMoveTo(x + dx, y)) {
+              this.swap(x, y, x + dx, y);
             }
           }
         }
@@ -614,11 +647,11 @@ export class PhysicsEngine {
     ctx.putImageData(imageData, 0, 0);
 
     // Draw Sun and Moon as UI overlays directly on the canvas
-    const drawCelestial = (timer, color) => {
-      const p = (120 - timer) / 120; // 0.0 to 1.0
-      const startX = this.width / 3;
-      const endX = this.width * 2 / 3;
-      const highestY = this.height / 5;
+    const drawCelestial = (timer, color, isSun) => {
+      const p = isSun ? (1200 - timer) / 1200 : timer / 1200; // 0.0 to 1.0
+      const startX = 0;
+      const endX = this.width;
+      const highestY = this.height / 6;
       const startY = this.height / 2;
       
       const cx = startX + p * (endX - startX);
@@ -626,15 +659,15 @@ export class PhysicsEngine {
       
       ctx.fillStyle = color;
       ctx.beginPath();
-      ctx.arc(cx, cy, 7.5, 0, 2 * Math.PI); // Half size (from 15 to 7.5)
+      ctx.arc(cx, cy, 10, 0, 2 * Math.PI);
       ctx.fill();
     };
 
     if (this.sunTimer > 0) {
-      drawCelestial(this.sunTimer, '#ffdc32');
+      drawCelestial(this.sunTimer, '#ffdc32', true);
     }
     if (this.moonTimer > 0) {
-      drawCelestial(this.moonTimer, '#c8c8ff');
+      drawCelestial(this.moonTimer, '#c8c8ff', false);
     }
   }
 }

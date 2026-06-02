@@ -108,6 +108,54 @@ body {
   opacity: 1;
 }
 
+.canvas-container.eclipse-dark::before {
+  background-color: #4a1c1c; /* Reddish dark hue for eclipse */
+  opacity: 0.8;
+}
+
+.eclipse-toast {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  padding: 15px 25px;
+  border-radius: 12px;
+  border: 2px solid #ffdc32;
+  text-align: center;
+  z-index: 100;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  animation: slideDown 0.5s ease-out forwards;
+}
+
+.eclipse-toast h3 {
+  margin: 0 0 5px 0;
+  color: #ffdc32;
+  font-size: 1.1rem;
+}
+
+.eclipse-toast p {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.eclipse-toast button {
+  background: #ffdc32;
+  color: black;
+  border: none;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+@keyframes slideDown {
+  from { top: -50px; opacity: 0; }
+  to { top: 80px; opacity: 1; }
+}
+
 .sandbox-canvas {
   width: 100%;
   height: 100%;

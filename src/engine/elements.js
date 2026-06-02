@@ -25,7 +25,8 @@ export const TYPES = {
   FLOWER_PINK: 23,
   FLOWER_1: 24,
   FLOWER_2: 25,
-  FLOWER_3: 26
+  FLOWER_3: 26,
+  SNOW: 27
 };
 
 export const ELEMENTS = {
@@ -92,5 +93,6 @@ export const ELEMENTS = {
   [TYPES.FLOWER_PINK]: { id: TYPES.FLOWER_PINK, name: '벚꽃', color: [255, 180, 200], type: 'falling_solid', flammable: 0.1, hidden: true },
   [TYPES.FLOWER_1]: { id: TYPES.FLOWER_1, name: '빨간꽃', color: [255, 100, 100], type: 'falling_solid', flammable: 0.1, hidden: true },
   [TYPES.FLOWER_2]: { id: TYPES.FLOWER_2, name: '노란꽃', color: [255, 220, 50], type: 'falling_solid', flammable: 0.1, hidden: true },
-  [TYPES.FLOWER_3]: { id: TYPES.FLOWER_3, name: '보라꽃', color: [150, 100, 255], type: 'falling_solid', flammable: 0.1, hidden: true }
+  [TYPES.FLOWER_3]: { id: TYPES.FLOWER_3, name: '보라꽃', color: [150, 100, 255], type: 'falling_solid', flammable: 0.1, hidden: true },
+  [TYPES.SNOW]: { id: TYPES.SNOW, name: '눈', color: [240, 240, 255], type: 'falling_solid', flammable: 0, hidden: true }
 };
